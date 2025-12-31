@@ -494,7 +494,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const tripRef = db.ref('trip_2025');
 
-const { createApp, ref, computed, onMounted } = Vue;
+const { createApp, ref, computed, onMounted, watch } = Vue;
 
 createApp({
     setup() {
@@ -507,7 +507,7 @@ createApp({
         const itineraryData = ref([ [], [], [], [], [], [], [], [] ]); // 初始化 8 天空陣列
         const shoppingList = ref([]);
         const buyers = ref(['燕如', '怡君', '鈞晏', '嘉緯', '淑瑩', '月雲']); // 修改為你的團員名字
-const selectedBuyer = ref('人名1');
+const selectedBuyer = ref('燕如');
         const expenses = ref([]);
 
         // UI 狀態控制
@@ -538,9 +538,9 @@ const fetchWeather = async () => {
     let city = "Sendai"; 
     
     // 依據住宿地點設定查詢城市
-    if (idx <= 2) city = "Sendai";           // 2/20, 2/21, 2/22 住仙台
-    else if (idx === 3) city = "Matsushima";  // 2/23 住松島
-    else if (idx >= 4) city = "Tokyo";       // 2/24, 2/25, 2/26, 2/27 住兩國(東京)
+    if (idx <= 2) city = "Sendai";         
+    else if (idx === 3) city = "Matsushima";  
+    else if (idx >= 4) city = "Tokyo";      
 
     try {
         // 請確保這裡替換成您申請的 API Key
@@ -613,10 +613,17 @@ const hotels = ref([
     });
 };
 
-        const openMap = (q) => { if(q) window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`, '_blank'); };
-        const openMapDirections = (start, end) => {
-            if(start && end) window.open(`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(start.address||start.name)}&destination=${encodeURIComponent(end.address||end.name)}&travelmode=${end.transportType==='car'?'driving':'transit'}`, '_blank');
-        };
+     const openMap = (q) => { 
+    if(q) window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`, '_blank'); 
+};
+const openMapDirections = (start, end) => {
+    if(start && end) {
+        const origin = encodeURIComponent(start.address || start.name);
+        const dest = encodeURIComponent(end.address || end.name);
+        const mode = end.transportType === 'car' ? 'driving' : 'transit';
+        window.open(`https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&travelmode=${mode}`, '_blank');
+    }
+};
 
         // 新增與編輯
         const handleAddClick = () => {
@@ -700,13 +707,12 @@ const addShoppingItem = () => {
     shoppingList.value.push({
         id: Date.now(),
         name: newShoppingItem.value.name,
-        image: newShoppingItem.value.image, // 確保這裡有存入圖片
-        buyer: selectedBuyer.value 
+        image: newShoppingItem.value.image, 
+        buyer: selectedBuyer.value  // 確保存入當前選擇的購買人
     });
     
     showShoppingModal.value = false;
-    // 重置時也要清空圖片
-    newShoppingItem.value = { name: '', image: null }; 
+    newShoppingItem.value = { name: '', image: null }; // 清空暫存
     syncToFirebase();
 };
         // --- 修改刪除函數 (使用 ID) ---

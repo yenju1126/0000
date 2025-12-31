@@ -457,11 +457,53 @@
         <p class="text-sm italic">本日無消費記錄</p>
     </div>
 </div>
+ <button v-if="currentTab !== 'info'" @click="handleAddClick" class="fixed bottom-6 right-6 w-14 h-14 bg-accent-yellow rounded-full fab-shadow text-deep-sea-blue text-2xl flex items-center justify-center hover:scale-110 transition-transform z-50">
+    <i class="fa-solid fa-plus"></i>
+</button>
+
+    <div v-if="showItineraryModal" class="fixed inset-0 bg-deep-sea-blue/40 z-50 flex items-center justify-center p-6 backdrop-blur-sm animate-fade-in">
+        <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 class="font-bold text-lg mb-5 text-center text-slate-800">{{ isEditMode ? '編輯行程' : '新增行程' }}</h3>
+            <div class="space-y-3">
+                <select v-model="newItinerary.category" class="w-full bg-slate-50 rounded-xl p-3 text-sm outline-none">
+                    <option value="sightseeing">景點</option>
+                    <option value="food">美食</option>
+                    <option value="shopping">購物</option>
+                    <option value="accommodation">住宿</option>
+                    <option value="flight">航班</option>
+                    <option value="transport">交通</option>
+                </select>
+                <input v-model="newItinerary.name" placeholder="行程名稱" class="w-full bg-slate-50 rounded-xl p-3 text-sm outline-none">
+                <div class="grid grid-cols-2 gap-3">
+                    <input v-model="newItinerary.startTime" placeholder="開始時間 (09:00)" class="bg-slate-50 rounded-xl p-3 text-sm">
+                    <select v-model="newItinerary.transportType" class="bg-slate-50 rounded-xl p-3 text-sm">
+                        <option value="walk">步行</option>
+                        <option value="car">開車/計程車</option>
+                        <option value="public">大眾運輸</option>
+                        <option value="flight">飛機</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <input v-model="newItinerary.travelTime" placeholder="交通時間 (15m)" class="bg-slate-50 rounded-xl p-3 text-sm">
+                    <input v-model="newItinerary.transNote" placeholder="交通備註 (如: 仙石線)" class="bg-slate-50 rounded-xl p-3 text-sm">
+                </div>
+                <input v-model="newItinerary.address" placeholder="地點/導航地址" class="w-full bg-slate-50 rounded-xl p-3 text-sm outline-none">
+                <textarea v-model="newItinerary.note" placeholder="行程備註" class="w-full bg-slate-50 rounded-xl p-3 text-sm h-24"></textarea>
+                
+                <div class="flex flex-col space-y-2 mt-4">
+                    <div class="flex space-x-3">
+                        <button @click="showItineraryModal=false" class="flex-1 py-3 bg-slate-100 rounded-xl text-slate-500 font-bold">取消</button>
+                        <button @click="saveItineraryItem" class="flex-1 py-3 bg-deep-sea-blue text-white rounded-xl font-bold">儲存</button>
+                    </div>
+                    <button v-if="isEditMode" @click="deleteItineraryItem" class="w-full py-2.5 text-red-500 text-sm font-medium border border-red-100 rounded-xl hover:bg-red-50 transition-colors">
+                        <i class="fa-solid fa-trash-can mr-1"></i> 刪除此行程
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     
- </div>
-    
-   
- <div v-if="showShoppingModal" class="fixed inset-0 bg-deep-sea-blue/40 z-50 flex items-center justify-center p-6 backdrop-blur-sm">
+    <div v-if="showShoppingModal" class="fixed inset-0 bg-deep-sea-blue/40 z-50 flex items-center justify-center p-6 backdrop-blur-sm">
         <div class="bg-white rounded-3xl w-full max-w-sm p-6">
             <h3 class="font-bold text-center mb-4">新增購物清單</h3>
             <div class="mb-4 text-center">
@@ -519,55 +561,13 @@
         </div>
         <div class="flex space-x-3 mt-8">
             <button @click="showExpenseModal=false" class="flex-1 py-3 bg-slate-100 rounded-xl text-slate-500 font-bold">取消</button>
-         
-            
+            <button @click="addExpense" class="flex-1 py-3 bg-accent-yellow text-deep-sea-blue rounded-xl font-bold">儲存項目</button>
         </div>
     </div>
+</div>
 
- <div v-if="showItineraryModal" class="fixed inset-0 bg-deep-sea-blue/40 z-50 flex items-center justify-center p-6 backdrop-blur-sm animate-fade-in">
-        <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <h3 class="font-bold text-lg mb-5 text-center text-slate-800">{{ isEditMode ? '編輯行程' : '新增行程' }}</h3>
-            <div class="space-y-3">
-                <select v-model="newItinerary.category" class="w-full bg-slate-50 rounded-xl p-3 text-sm outline-none">
-                    <option value="sightseeing">景點</option>
-                    <option value="food">美食</option>
-                    <option value="shopping">購物</option>
-                    <option value="accommodation">住宿</option>
-                    <option value="flight">航班</option>
-                    <option value="transport">交通</option>
-                </select>
-                <input v-model="newItinerary.name" placeholder="行程名稱" class="w-full bg-slate-50 rounded-xl p-3 text-sm outline-none">
-                <div class="grid grid-cols-2 gap-3">
-                    <input v-model="newItinerary.startTime" placeholder="開始時間 (09:00)" class="bg-slate-50 rounded-xl p-3 text-sm">
-                    <select v-model="newItinerary.transportType" class="bg-slate-50 rounded-xl p-3 text-sm">
-                        <option value="walk">步行</option>
-                        <option value="car">開車/計程車</option>
-                        <option value="public">大眾運輸</option>
-                        <option value="flight">飛機</option>
-                    </select>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <input v-model="newItinerary.travelTime" placeholder="交通時間 (15m)" class="bg-slate-50 rounded-xl p-3 text-sm">
-                    <input v-model="newItinerary.transNote" placeholder="交通備註 (如: 仙石線)" class="bg-slate-50 rounded-xl p-3 text-sm">
-                </div>
-                <input v-model="newItinerary.address" placeholder="地點/導航地址" class="w-full bg-slate-50 rounded-xl p-3 text-sm outline-none">
-                <textarea v-model="newItinerary.note" placeholder="行程備註" class="w-full bg-slate-50 rounded-xl p-3 text-sm h-24"></textarea>
-                
-                <div class="flex flex-col space-y-2 mt-4">
-                    <div class="flex space-x-3">
-                        <button @click="showItineraryModal=false" class="flex-1 py-3 bg-slate-100 rounded-xl text-slate-500 font-bold">取消</button>
-                        <button @click="saveItineraryItem" class="flex-1 py-3 bg-deep-sea-blue text-white rounded-xl font-bold">儲存</button>
-                    </div>
-                    <button v-if="isEditMode" @click="deleteItineraryItem" class="w-full py-2.5 text-red-500 text-sm font-medium border border-red-100 rounded-xl hover:bg-red-50 transition-colors">
-                        <i class="fa-solid fa-trash-can mr-1"></i> 刪除此行程
-                    </button>
-                </div>
-            </div>
-        </div>
-<button v-if="currentTab !== 'info'" @click="handleAddClick" class="fixed bottom-6 right-6 w-14 h-14 bg-accent-yellow rounded-full fab-shadow text-deep-sea-blue text-2xl flex items-center justify-center hover:scale-110 transition-transform z-40">
-        <i class="fa-solid fa-plus"></i>
-    </button>
-</main>
+</div>
+
 <script>
 // 1. 初始化 Firebase (維持原樣)
 const firebaseConfig = {
@@ -787,37 +787,17 @@ const openMapDirections = (start, end) => {
         window.open(`https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&travelmode=${mode}`, '_blank');
     }
 };
-    const handleAddClick = () => {
-    // 檢查目前分頁
-    const current = currentTab.value;
-    
-    if (current === 'itinerary') {
-        // 如果是在行程頁，開行程視窗
-        isEditMode.value = false;
-        newItinerary.value = {
-            id: Date.now(),
-            name: '',
-            category: 'sightseeing',
-            startTime: '',
-            address: '',
-            note: '',
-            transportType: 'car',
-            travelTime: '',
-            transNote: '',
-            isNoteExpanded: false
+        // 新增與編輯
+        const handleAddClick = () => {
+            if(currentTab.value==='itinerary') { 
+                isEditMode.value=false; 
+                newItinerary.value={id: Date.now(), name: '', category: 'sightseeing', startTime: '', address: '', note: '', transportType: 'car', travelTime: '', transNote: '', isNoteExpanded: false }; 
+                showItineraryModal.value=true; 
+            }
+            else if(currentTab.value==='shopping') showShoppingModal.value=true;
+            else if(currentTab.value==='expenses') showExpenseModal.value=true;
         };
-        showItineraryModal.value = true;
-    } 
-    else if (current === 'shopping') {
-        // 如果是在購物頁，開購物視窗
-        newShoppingItem.value = { name: '', image: null };
-        showShoppingModal.value = true;
-    } 
-    else if (current === 'expenses') {
-        // 如果是在記帳頁，開記帳視窗
-        showExpenseModal.value = true;
-    }
-};
+        
         const saveItineraryItem = () => {
             const list = itineraryData.value[selectedDateIndex.value];
             if(isEditMode.value) {

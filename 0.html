@@ -894,30 +894,19 @@ const removeExpenseById = (id) => {
             });
         });
 
-       return {
-    // 基礎狀態
+      return {
     EXCHANGE_RATE, currentTab, dates, selectedDateIndex, itineraryData, currentItinerary, 
     hotels, shoppingList, expenses, weatherData, currencyInput, currencyResult,
-    
-    // 計算屬性
     filteredExpenses, dailyExpenses, personOwes, totalExpensesJPY, totalExpensesTWD, 
     filteredShoppingList,
-    
-    // 功能函式
     calculateCurrency, formatNumber, getCategoryColor, getCategoryIcon, getCategoryLabel, 
     getWeatherIcon, getWeatherDescription, getTransportIcon, renderNote, 
     openMap, openMapDirections, handleAddClick, toggleSplitMember,
-    
-    // 彈窗控制
     showItineraryModal, showShoppingModal, showExpenseModal, isEditMode,
     newItinerary, newShoppingItem, newExpense,
-    
-    // 存取動作
     saveItineraryItem, deleteItineraryItem, editItem, moveItineraryUp, moveItineraryDown, 
     addShoppingItem, removeShoppingItem, handleImageUpload,
-    addExpense, removeExpenseById, // 確保這裡叫 removeExpenseById
-    
-    // 購買人
+    addExpense, removeExpenseById, // 確保這裡是 removeExpenseById
     buyers, selectedBuyer, groupMembers
 }
     }

@@ -373,23 +373,48 @@
     </div>
 </div>
 <div v-if="currentTab === 'expenses'" class="animate-fade-in">
-    <div class="expenses-banner text-white rounded-3xl p-8 mb-6 relative overflow-hidden">
-        <div class="absolute -right-10 -top-10 bg-white/10 w-48 h-48 rounded-full blur-3xl"></div>
-        <p class="text-sm text-cyan-200 mb-2 relative z-10">目前總花費 (JPY)</p>
-        <h2 class="text-5xl font-bold relative z-10 tracking-tight">¥ {{ formatNumber(totalExpensesJPY) }}</h2>
-        <p class="text-sm text-right mt-2 opacity-80 relative z-10">約 NT$ {{ formatNumber(totalExpensesTWD) }}</p>
-    </div>
-
-    <div class="bg-white rounded-2xl p-4 mb-4 card-shadow mx-1 border border-ice-blue/50">
-        <h4 class="text-xs font-bold text-slate-500 mb-3"><i class="fa-solid fa-user-tag mr-2 text-deep-sea-blue"></i>每人應付總計</h4>
-        <div class="grid grid-cols-3 gap-2">
-            <div v-for="(amount, name) in personOwes" :key="name" class="bg-slate-50 p-2 rounded-xl text-center border border-slate-100">
-                <p class="text-[10px] text-slate-400">{{ name }}</p>
-                <p class="text-xs font-bold text-deep-sea-blue">¥{{ formatNumber(Math.round(amount)) }}</p>
-            </div>
+  <div class="mb-6">
+    <h4 class="text-xs font-bold text-slate-500 mb-3 pl-1">
+        <i class="fa-solid fa-users mr-2 text-deep-sea-blue"></i>個人支出總計 (JPY)
+    </h4>
+    <div class="flex overflow-x-auto gap-3 hide-scrollbar py-2">
+        <div v-for="(amount, name) in personOwes" :key="name" 
+             class="expenses-banner min-w-[140px] text-white rounded-2xl p-4 shadow-lg relative overflow-hidden flex-shrink-0">
+            <div class="absolute -right-4 -top-4 bg-white/10 w-16 h-16 rounded-full blur-xl"></div>
+            <p class="text-[10px] text-cyan-100 opacity-80 mb-1 relative z-10">{{ name }}</p>
+            <h2 class="text-xl font-bold relative z-10 tracking-tight">¥ {{ formatNumber(Math.round(amount)) }}</h2>
+            <p class="text-[9px] mt-1 opacity-70 relative z-10">約 NT$ {{ formatNumber(Math.round(amount * EXCHANGE_RATE)) }}</p>
         </div>
     </div>
+</div>
 
+  <div class="bg-white rounded-2xl p-4 mb-4 card-shadow mx-1 border border-ice-blue/50">
+    <h4 class="text-xs font-bold text-slate-500 mb-3 flex justify-between">
+        <span>
+            <i class="fa-solid fa-hand-holding-dollar mr-2 text-deep-sea-blue"></i>
+            {{ dates[expenseDateIndex].date }} 結算 (誰給誰)
+        </span>
+        <span class="text-[10px] text-slate-400">JPY</span>
+    </h4>
+    
+    <div class="space-y-2">
+        <div v-for="(s, idx) in settlements" :key="idx" 
+             class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-100">
+            <div class="flex items-center space-x-2">
+                <span class="font-bold text-slate-700 text-sm">{{ s.from }}</span>
+                <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
+                <span class="font-bold text-deep-sea-blue text-sm">{{ s.to }}</span>
+            </div>
+            <div class="text-right">
+                <p class="text-xs font-black text-red-500">¥ {{ formatNumber(s.amount) }}</p>
+            </div>
+        </div>
+
+        <div v-if="settlements.length === 0" class="text-center py-2 text-slate-400 text-xs italic">
+            本日帳目已平
+        </div>
+    </div>
+</div>
     <div class="mb-6 mx-1">
         <h4 class="text-xs font-bold text-slate-500 mb-3 pl-1"><i class="fa-solid fa-calendar-day mr-2 text-orange-400"></i>每日統計</h4>
         <div class="flex overflow-x-auto gap-2 hide-scrollbar">
@@ -404,30 +429,35 @@
     </div>
 
     <div class="bg-white rounded-t-3xl min-h-[400px] p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.03)] -mx-4">
-        <div v-for="(exp, idx) in filteredExpenses" :key="idx" class="flex items-center justify-between ...">
-    </div>
-            <div class="flex items-center">
-                <div class="expense-category-tag mr-4 text-white" :class="getCategoryColor(exp.category)">{{ getCategoryLabel(exp.category) }}</div>
-                <div>
-                    <p class="font-bold text-slate-700 text-sm mb-0.5">{{ exp.name }}</p>
-                    <p class="text-[10px] text-slate-400 uppercase tracking-wide">
-                        {{ exp.date }} · {{ exp.payer }} 墊付 ({{ exp.splitMembers?.length }}人分)
-                    </p>
-                </div>
+    <p class="text-[10px] text-slate-400 font-bold mb-4 uppercase tracking-widest">
+        {{ dates[expenseDateIndex].date }} 消費明細 ({{ filteredExpenses.length }} 筆)
+    </p>
+
+    <div v-for="(exp, idx) in filteredExpenses" :key="idx" class="flex items-center justify-between mb-6">
+        <div class="flex items-center">
+            <div class="expense-category-tag mr-4 text-white" :class="getCategoryColor(exp.category)">
+                {{ getCategoryLabel(exp.category) }}
             </div>
-            <div class="text-right flex items-center">
-                <p class="font-bold text-slate-700 text-sm">¥{{ formatNumber(exp.amount) }}</p>
-                <button @click="removeExpense(idx)" class="w-5 h-5 ml-3 text-red-300 hover:text-red-500 transition-colors"><i class="fa-solid fa-xmark"></i></button>
+            <div>
+                <p class="font-bold text-slate-700 text-sm mb-0.5">{{ exp.name }}</p>
+                <p class="text-[10px] text-slate-400 uppercase tracking-wide">
+                    {{ exp.payer }} 墊付 ({{ exp.splitMembers?.length }}人分)
+                </p>
             </div>
         </div>
+        <div class="text-right flex items-center">
+            <p class="font-bold text-slate-700 text-sm">¥{{ formatNumber(exp.amount) }}</p>
+            <button @click="removeExpense(exp)" class="w-5 h-5 ml-3 text-red-300 hover:text-red-500 transition-colors">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    </div>
+
+    <div v-if="filteredExpenses.length === 0" class="text-center py-10 text-slate-300">
+        <p class="text-sm italic">本日無消費記錄</p>
     </div>
 </div>
-
-    </main>
-
-    <button v-if="currentTab !== 'info'" @click="handleAddClick" class="fixed bottom-6 right-6 w-14 h-14 bg-accent-yellow rounded-full fab-shadow text-deep-sea-blue text-2xl flex items-center justify-center hover:scale-110 transition-transform z-40">
-        <i class="fa-solid fa-plus"></i>
-    </button>
+    
 
     <div v-if="showItineraryModal" class="fixed inset-0 bg-deep-sea-blue/40 z-50 flex items-center justify-center p-6 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
@@ -529,13 +559,17 @@
         </div>
         <div class="flex space-x-3 mt-8">
             <button @click="showExpenseModal=false" class="flex-1 py-3 bg-slate-100 rounded-xl text-slate-500 font-bold">取消</button>
-            <button @click="addExpense" class="flex-1 py-3 bg-accent-yellow text-deep-sea-blue rounded-xl font-bold">儲存項目</button>
+         
+            
         </div>
     </div>
 </div>
 
 </div>
-
+<button v-if="currentTab !== 'info'" @click="handleAddClick" class="fixed bottom-6 right-6 w-14 h-14 bg-accent-yellow rounded-full fab-shadow text-deep-sea-blue text-2xl flex items-center justify-center hover:scale-110 transition-transform z-40">
+        <i class="fa-solid fa-plus"></i>
+    </button>
+</main>
 <script>
 // 1. 初始化 Firebase (維持原樣)
 const firebaseConfig = {
@@ -566,6 +600,7 @@ createApp({
     // 只回傳日期相符的消費項目
     return expenses.value.filter(exp => exp.date === targetDate);
 });
+
         
         // 核心資料庫狀態
         const itineraryData = ref([ [], [], [], [], [], [], [], [] ]); // 初始化 8 天空陣列
@@ -754,17 +789,37 @@ const openMapDirections = (start, end) => {
         window.open(`https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&travelmode=${mode}`, '_blank');
     }
 };
-        // 新增與編輯
-        const handleAddClick = () => {
-            if(currentTab.value==='itinerary') { 
-                isEditMode.value=false; 
-                newItinerary.value={id: Date.now(), name: '', category: 'sightseeing', startTime: '', address: '', note: '', transportType: 'car', travelTime: '', transNote: '', isNoteExpanded: false }; 
-                showItineraryModal.value=true; 
-            }
-            else if(currentTab.value==='shopping') showShoppingModal.value=true;
-            else if(currentTab.value==='expenses') showExpenseModal.value=true;
+    const handleAddClick = () => {
+    // 檢查目前分頁
+    const current = currentTab.value;
+    
+    if (current === 'itinerary') {
+        // 如果是在行程頁，開行程視窗
+        isEditMode.value = false;
+        newItinerary.value = {
+            id: Date.now(),
+            name: '',
+            category: 'sightseeing',
+            startTime: '',
+            address: '',
+            note: '',
+            transportType: 'car',
+            travelTime: '',
+            transNote: '',
+            isNoteExpanded: false
         };
-        
+        showItineraryModal.value = true;
+    } 
+    else if (current === 'shopping') {
+        // 如果是在購物頁，開購物視窗
+        newShoppingItem.value = { name: '', image: null };
+        showShoppingModal.value = true;
+    } 
+    else if (current === 'expenses') {
+        // 如果是在記帳頁，開記帳視窗
+        showExpenseModal.value = true;
+    }
+};
         const saveItineraryItem = () => {
             const list = itineraryData.value[selectedDateIndex.value];
             if(isEditMode.value) {
@@ -829,7 +884,45 @@ const handleImageUpload = (event) => {
         reader.readAsDataURL(file);
     }
 };
-      // 修改你原本的 addShoppingItem
+     // 在 setup() 內 return 之前新增
+const settlements = computed(() => {
+    const balances = {};
+    groupMembers.forEach(m => balances[m] = 0);
+
+    // 關鍵修改：改用 filteredExpenses（當天消費）而不是全部消費
+    filteredExpenses.value.forEach(exp => {
+        // 1. 墊付者加錢
+        balances[exp.payer] += Number(exp.amount);
+        // 2. 分攤者扣錢
+        const amountPerPerson = Number(exp.amount) / (exp.splitMembers?.length || 1);
+        exp.splitMembers?.forEach(member => {
+            balances[member] -= amountPerPerson;
+        });
+    });
+
+    const payers = [];
+    const receivers = [];
+    Object.keys(balances).forEach(m => {
+        if (balances[m] > 1) receivers.push({ name: m, amount: balances[m] });
+        else if (balances[m] < -1) payers.push({ name: m, amount: Math.abs(balances[m]) });
+    });
+
+    const results = [];
+    payers.forEach(p => {
+        receivers.forEach(r => {
+            if (p.amount > 0 && r.amount > 0) {
+                const settle = Math.min(p.amount, r.amount);
+                results.push({ from: p.name, to: r.name, amount: Math.round(settle) });
+                p.amount -= settle;
+                r.amount -= settle;
+            }
+        });
+    });
+    return results;
+});
+
+// 記得在最後的 return 加入 settlements
+     // 修改你原本的 addShoppingItem
 const addShoppingItem = () => {
     if (!newShoppingItem.value.name) return;
     
@@ -854,13 +947,14 @@ const removeShoppingItem = (id) => {
 };
        const addExpense = () => { 
     if(!newExpense.value.amount || !newExpense.value.name) return;
-    // 自動帶入花費分頁目前選中的日期
+    
+    // 這行確保了：你點哪天，新增的帳就是哪天
     newExpense.value.date = dates.value[expenseDateIndex.value].date;
     
     expenses.value.push({...newExpense.value}); 
     showExpenseModal.value = false; 
     
-    // 重置輸入框
+    // 重置
     newExpense.value = {
         name: '', amount: null, category: 'food', date: '', 
         payer: '燕如', 
@@ -868,8 +962,15 @@ const removeShoppingItem = (id) => {
     }; 
     syncToFirebase();
 };
-        const removeExpense = (i) => { expenses.value.splice(i, 1); syncToFirebase(); };
-
+       const removeExpense = (item) => {
+    if(confirm('確定要刪除這筆花費嗎？')) {
+        const index = expenses.value.findIndex(e => e === item);
+        if (index !== -1) {
+            expenses.value.splice(index, 1);
+            syncToFirebase();
+        }
+    }
+};
         // --- 核心邏輯 D：生命週期 ---
         onMounted(() => { 
             calculateCurrency(); 
@@ -892,7 +993,7 @@ const removeShoppingItem = (id) => {
             showItineraryModal, showShoppingModal, showExpenseModal, isEditMode,
             newItinerary, newShoppingItem, newExpense,
             saveItineraryItem, deleteItineraryItem, editItem, moveItineraryUp, moveItineraryDown, addShoppingItem, removeShoppingItem, addExpense, removeExpense,buyers, selectedBuyer, filteredShoppingList,
-    addShoppingItem,expenseDateIndex, removeShoppingItem,handleImageUpload,groupMembers, toggleSplitMember, dailyExpenses, personOwes,filteredExpenses,
+    addShoppingItem,expenseDateIndex, removeShoppingItem,handleImageUpload,groupMembers,settlements, toggleSplitMember, dailyExpenses, personOwes,filteredExpenses,
             totalExpensesJPY, totalExpensesTWD
         }
     }

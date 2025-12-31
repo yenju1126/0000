@@ -404,7 +404,8 @@
     </div>
 
     <div class="bg-white rounded-t-3xl min-h-[400px] p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.03)] -mx-4">
-        <div v-for="(exp, idx) in expenses" :key="idx" class="flex items-center justify-between border-b border-slate-50 pb-4 mb-4">
+        <div v-for="(exp, idx) in filteredExpenses" :key="idx" class="flex items-center justify-between ...">
+    </div>
             <div class="flex items-center">
                 <div class="expense-category-tag mr-4 text-white" :class="getCategoryColor(exp.category)">{{ getCategoryLabel(exp.category) }}</div>
                 <div>
@@ -559,6 +560,12 @@ createApp({
         const currentTab = ref('itinerary');
         const selectedDateIndex = ref(0);
         const expenseDateIndex = ref(0); 
+        const filteredExpenses = computed(() => {
+    // 取得目前「花費分頁」選中的日期字串 (例如 "2/20")
+    const targetDate = dates.value[expenseDateIndex.value].date;
+    // 只回傳日期相符的消費項目
+    return expenses.value.filter(exp => exp.date === targetDate);
+});
         
         // 核心資料庫狀態
         const itineraryData = ref([ [], [], [], [], [], [], [], [] ]); // 初始化 8 天空陣列
@@ -847,15 +854,19 @@ const removeShoppingItem = (id) => {
 };
        const addExpense = () => { 
     if(!newExpense.value.amount || !newExpense.value.name) return;
-    // 修改此處：改用 expenseDateIndex
-    newExpense.value.date = dates.value[expenseDateIndex.value].date; 
+    // 自動帶入花費分頁目前選中的日期
+    newExpense.value.date = dates.value[expenseDateIndex.value].date;
+    
     expenses.value.push({...newExpense.value}); 
-    showExpenseModal.value = false;
+    showExpenseModal.value = false; 
+    
+    // 重置輸入框
     newExpense.value = {
-        name: '', amount: null, category: 'food', date: '', payer: '燕如', 
+        name: '', amount: null, category: 'food', date: '', 
+        payer: '燕如', 
         splitMembers: ['燕如', '怡君', '鈞晏', '嘉緯', '淑瑩', '月雲']
     }; 
-    syncToFirebase(); 
+    syncToFirebase();
 };
         const removeExpense = (i) => { expenses.value.splice(i, 1); syncToFirebase(); };
 
@@ -881,7 +892,7 @@ const removeShoppingItem = (id) => {
             showItineraryModal, showShoppingModal, showExpenseModal, isEditMode,
             newItinerary, newShoppingItem, newExpense,
             saveItineraryItem, deleteItineraryItem, editItem, moveItineraryUp, moveItineraryDown, addShoppingItem, removeShoppingItem, addExpense, removeExpense,buyers, selectedBuyer, filteredShoppingList,
-    addShoppingItem,expenseDateIndex, removeShoppingItem,handleImageUpload,groupMembers, toggleSplitMember, dailyExpenses, personOwes,
+    addShoppingItem,expenseDateIndex, removeShoppingItem,handleImageUpload,groupMembers, toggleSplitMember, dailyExpenses, personOwes,filteredExpenses,
             totalExpensesJPY, totalExpensesTWD
         }
     }

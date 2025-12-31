@@ -393,10 +393,13 @@
     <div class="mb-6 mx-1">
         <h4 class="text-xs font-bold text-slate-500 mb-3 pl-1"><i class="fa-solid fa-calendar-day mr-2 text-orange-400"></i>每日統計</h4>
         <div class="flex overflow-x-auto gap-2 hide-scrollbar">
-            <div v-for="day in dates" :key="day.date" class="min-w-[85px] bg-white p-2 rounded-xl border border-slate-100 text-center flex-shrink-0 shadow-sm">
-                <p class="text-[10px] text-slate-400">{{ day.date }}</p>
-                <p class="text-xs font-bold text-slate-700">¥{{ formatNumber(dailyExpenses[day.date] || 0) }}</p>
-            </div>
+         <div v-for="(day, index) in dates" :key="day.date" 
+     @click="expenseDateIndex = index" 
+     class="min-w-[85px] p-2 rounded-xl border text-center flex-shrink-0 transition-all cursor-pointer"
+     :class="expenseDateIndex === index ? 'bg-blue-50 border-deep-sea-blue shadow-sm' : 'bg-white border-slate-100'">
+    <p class="text-[10px]" :class="expenseDateIndex === index ? 'text-deep-sea-blue font-bold' : 'text-slate-400'">{{ day.date }}</p>
+    <p class="text-xs font-bold" :class="expenseDateIndex === index ? 'text-deep-sea-blue' : 'text-slate-700'">¥{{ formatNumber(dailyExpenses[day.date] || 0) }}</p>
+</div>
         </div>
     </div>
 
@@ -555,6 +558,7 @@ createApp({
         const EXCHANGE_RATE = 0.215;
         const currentTab = ref('itinerary');
         const selectedDateIndex = ref(0);
+        const expenseDateIndex = ref(0); 
         
         // 核心資料庫狀態
         const itineraryData = ref([ [], [], [], [], [], [], [], [] ]); // 初始化 8 天空陣列
@@ -732,8 +736,9 @@ const personOwes = computed(() => {
 };
 
     const openMap = (q) => { 
-    if(q) window.open(`https://www.google.com/maps/search/?api=1&query=$${encodeURIComponent(q)}`, '_blank'); 
+    if(q) window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`, '_blank'); 
 };
+
 const openMapDirections = (start, end) => {
     if(start && end) {
         const origin = encodeURIComponent(start.address || start.name);
@@ -742,7 +747,6 @@ const openMapDirections = (start, end) => {
         window.open(`https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&travelmode=${mode}`, '_blank');
     }
 };
-
         // 新增與編輯
         const handleAddClick = () => {
             if(currentTab.value==='itinerary') { 
@@ -841,11 +845,12 @@ const removeShoppingItem = (id) => {
         syncToFirebase();
     }
 };
-        const addExpense = () => { 
+       const addExpense = () => { 
     if(!newExpense.value.amount || !newExpense.value.name) return;
-    newExpense.value.date = dates.value[selectedDateIndex.value].date;
+    // 修改此處：改用 expenseDateIndex
+    newExpense.value.date = dates.value[expenseDateIndex.value].date; 
     expenses.value.push({...newExpense.value}); 
-    showExpenseModal.value = false; 
+    showExpenseModal.value = false;
     newExpense.value = {
         name: '', amount: null, category: 'food', date: '', payer: '燕如', 
         splitMembers: ['燕如', '怡君', '鈞晏', '嘉緯', '淑瑩', '月雲']
@@ -876,7 +881,7 @@ const removeShoppingItem = (id) => {
             showItineraryModal, showShoppingModal, showExpenseModal, isEditMode,
             newItinerary, newShoppingItem, newExpense,
             saveItineraryItem, deleteItineraryItem, editItem, moveItineraryUp, moveItineraryDown, addShoppingItem, removeShoppingItem, addExpense, removeExpense,buyers, selectedBuyer, filteredShoppingList,
-    addShoppingItem, removeShoppingItem,handleImageUpload,groupMembers, toggleSplitMember, dailyExpenses, personOwes,
+    addShoppingItem,expenseDateIndex, removeShoppingItem,handleImageUpload,groupMembers, toggleSplitMember, dailyExpenses, personOwes,
             totalExpensesJPY, totalExpensesTWD
         }
     }

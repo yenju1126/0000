@@ -177,7 +177,9 @@
             <div class="flex overflow-x-auto hide-scrollbar space-x-3 pb-4 mb-2 snap-x px-1 sticky date-selector-sticky pt-1 -mx-4 px-4">
                 <div v-for="(day, index) in dates" :key="index" @click="selectedDateIndex = index"
                      class="snap-center flex-shrink-0 w-[58px] h-[68px] rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all duration-300 border-2 shadow-sm"
-                     :class="selectedDateIndex === index ? 'bg-deep-sea-blue text-white border-deep-sea-blue shadow-lg scale-105' : 'bg-white text-slate-400 border-white hover:bg-soft-gray'">
+                     :class="selectedDateIndex === index 
+    ? 'bg-deep-sea-blue text-white border-blue-400 shadow-xl scale-110 z-10' 
+    : 'bg-white text-slate-500 border-slate-200 shadow-sm'">
                     <span class="text-sm font-bold uppercase tracking-wider">{{ day.weekday }}</span>
                     <span class="text-xs font-medium opacity-70">{{ day.date }}</span>
                 </div>
@@ -370,30 +372,52 @@
         </div>
     </div>
 </div>
+<div v-if="currentTab === 'expenses'" class="animate-fade-in">
+    <div class="expenses-banner text-white rounded-3xl p-8 mb-6 relative overflow-hidden">
+        <div class="absolute -right-10 -top-10 bg-white/10 w-48 h-48 rounded-full blur-3xl"></div>
+        <p class="text-sm text-cyan-200 mb-2 relative z-10">目前總花費 (JPY)</p>
+        <h2 class="text-5xl font-bold relative z-10 tracking-tight">¥ {{ formatNumber(totalExpensesJPY) }}</h2>
+        <p class="text-sm text-right mt-2 opacity-80 relative z-10">約 NT$ {{ formatNumber(totalExpensesTWD) }}</p>
+    </div>
 
-        <div v-if="currentTab === 'expenses'" class="animate-fade-in">
-            <div class="expenses-banner text-white rounded-3xl p-8 mb-6 relative overflow-hidden">
-                <div class="absolute -right-10 -top-10 bg-white/10 w-48 h-48 rounded-full blur-3xl"></div>
-                <p class="text-sm text-cyan-200 mb-2 relative z-10">目前總花費 (JPY)</p>
-                <h2 class="text-5xl font-bold relative z-10 tracking-tight">¥ {{ formatNumber(totalExpensesJPY) }}</h2>
-                <p class="text-sm text-right mt-2 opacity-80 relative z-10">約 NT$ {{ formatNumber(totalExpensesTWD) }}</p>
-            </div>
-            <div class="bg-white rounded-t-3xl min-h-[500px] p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.03)] -mx-4 px-8">
-                <div v-for="(exp, idx) in expenses" :key="idx" class="flex items-center justify-between border-b border-slate-50 pb-4 last:border-0 mb-4">
-                    <div class="flex items-center">
-                        <div class="expense-category-tag mr-4 text-white" :class="getCategoryColor(exp.category)">{{ getCategoryLabel(exp.category) }}</div>
-                        <div>
-                            <p class="font-bold text-slate-700 text-sm mb-0.5">{{ exp.name }}</p>
-                            <p class="text-[10px] text-slate-400 uppercase tracking-wide">{{ exp.date }} · {{ exp.payment }}</p>
-                        </div>
-                    </div>
-                    <div class="text-right flex items-center">
-                        <p class="font-bold text-slate-700">¥{{ formatNumber(exp.amount) }}</p>
-                        <button @click="removeExpense(idx)" class="w-5 h-5 ml-3 text-red-300 hover:text-red-500 transition-colors"><i class="fa-solid fa-xmark"></i></button>
-                    </div>
-                </div>
+    <div class="bg-white rounded-2xl p-4 mb-4 card-shadow mx-1 border border-ice-blue/50">
+        <h4 class="text-xs font-bold text-slate-500 mb-3"><i class="fa-solid fa-user-tag mr-2 text-deep-sea-blue"></i>每人應付總計</h4>
+        <div class="grid grid-cols-3 gap-2">
+            <div v-for="(amount, name) in personOwes" :key="name" class="bg-slate-50 p-2 rounded-xl text-center border border-slate-100">
+                <p class="text-[10px] text-slate-400">{{ name }}</p>
+                <p class="text-xs font-bold text-deep-sea-blue">¥{{ formatNumber(Math.round(amount)) }}</p>
             </div>
         </div>
+    </div>
+
+    <div class="mb-6 mx-1">
+        <h4 class="text-xs font-bold text-slate-500 mb-3 pl-1"><i class="fa-solid fa-calendar-day mr-2 text-orange-400"></i>每日統計</h4>
+        <div class="flex overflow-x-auto gap-2 hide-scrollbar">
+            <div v-for="day in dates" :key="day.date" class="min-w-[85px] bg-white p-2 rounded-xl border border-slate-100 text-center flex-shrink-0 shadow-sm">
+                <p class="text-[10px] text-slate-400">{{ day.date }}</p>
+                <p class="text-xs font-bold text-slate-700">¥{{ formatNumber(dailyExpenses[day.date] || 0) }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-t-3xl min-h-[400px] p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.03)] -mx-4">
+        <div v-for="(exp, idx) in expenses" :key="idx" class="flex items-center justify-between border-b border-slate-50 pb-4 mb-4">
+            <div class="flex items-center">
+                <div class="expense-category-tag mr-4 text-white" :class="getCategoryColor(exp.category)">{{ getCategoryLabel(exp.category) }}</div>
+                <div>
+                    <p class="font-bold text-slate-700 text-sm mb-0.5">{{ exp.name }}</p>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-wide">
+                        {{ exp.date }} · {{ exp.payer }} 墊付 ({{ exp.splitMembers?.length }}人分)
+                    </p>
+                </div>
+            </div>
+            <div class="text-right flex items-center">
+                <p class="font-bold text-slate-700 text-sm">¥{{ formatNumber(exp.amount) }}</p>
+                <button @click="removeExpense(idx)" class="w-5 h-5 ml-3 text-red-300 hover:text-red-500 transition-colors"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
 
     </main>
 
@@ -471,17 +495,40 @@
         </div>
     </div>
 
-    <div v-if="showExpenseModal" class="fixed inset-0 bg-deep-sea-blue/40 z-50 flex items-center justify-center p-6 backdrop-blur-sm">
-        <div class="bg-white rounded-3xl w-full max-w-sm p-6">
-            <h3 class="font-bold text-center mb-4">記一筆</h3>
-            <input v-model="newExpense.name" placeholder="項目" class="w-full bg-slate-50 p-3 rounded-xl mb-3">
-            <input v-model="newExpense.amount" type="number" placeholder="金額 (JPY)" class="w-full bg-slate-50 p-3 rounded-xl mb-3">
-            <div class="flex space-x-3">
-                <button @click="showExpenseModal=false" class="flex-1 py-3 bg-slate-100 rounded-xl">取消</button>
-                <button @click="addExpense" class="flex-1 py-3 bg-accent-yellow text-deep-sea-blue rounded-xl font-bold">儲存</button>
+  <div v-if="showExpenseModal" class="fixed inset-0 bg-deep-sea-blue/40 z-50 flex items-center justify-center p-6 backdrop-blur-sm overflow-y-auto">
+    <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl my-auto">
+        <h3 class="font-bold text-center mb-4 text-slate-800">記一筆消費</h3>
+        <div class="space-y-3">
+            <select v-model="newExpense.category" class="w-full bg-slate-50 p-3 rounded-xl text-sm border-0 focus:ring-2 focus:ring-ice-blue">
+                <option value="food">美食</option>
+                <option value="sightseeing">景點</option>
+                <option value="transport">交通</option>
+                <option value="shopping">購物</option>
+                <option value="other">其他</option>
+            </select>
+            <input v-model="newExpense.name" placeholder="項目名稱" class="w-full bg-slate-50 p-3 rounded-xl text-sm outline-none">
+            <input v-model="newExpense.amount" type="number" placeholder="金額 (JPY)" class="w-full bg-slate-50 p-3 rounded-xl text-sm font-bold outline-none">
+            
+            <p class="text-[10px] text-slate-400 font-bold ml-1 mt-4">誰先付錢？</p>
+            <div class="flex flex-wrap gap-2">
+                <button v-for="m in groupMembers" :key="'p'+m" @click="newExpense.payer = m"
+                    :class="newExpense.payer === m ? 'bg-deep-sea-blue text-white shadow-md' : 'bg-slate-50 text-slate-400'"
+                    class="px-3 py-1.5 rounded-xl text-xs transition-all">{{ m }}</button>
+            </div>
+
+            <p class="text-[10px] text-slate-400 font-bold ml-1 mt-4">誰要分攤？</p>
+            <div class="flex flex-wrap gap-2">
+                <button v-for="m in groupMembers" :key="'s'+m" @click="toggleSplitMember(m)"
+                    :class="newExpense.splitMembers.includes(m) ? 'bg-cyan-600 text-white shadow-md' : 'bg-slate-50 text-slate-400'"
+                    class="px-3 py-1.5 rounded-xl text-xs transition-all">{{ m }}</button>
             </div>
         </div>
+        <div class="flex space-x-3 mt-8">
+            <button @click="showExpenseModal=false" class="flex-1 py-3 bg-slate-100 rounded-xl text-slate-500 font-bold">取消</button>
+            <button @click="addExpense" class="flex-1 py-3 bg-accent-yellow text-deep-sea-blue rounded-xl font-bold">儲存項目</button>
+        </div>
     </div>
+</div>
 
 </div>
 
@@ -527,7 +574,25 @@ const selectedBuyer = ref('燕如');
         const currencyResult = ref(0);
         const newItinerary = ref({ id: null, name: '', category: 'sightseeing', startTime: '', address: '', note: '', transportType: 'car', travelTime: '', transNote: '', isNoteExpanded: false });
         const newShoppingItem = ref({ name: '', image: null });
-        const newExpense = ref({ name: '', amount: null, category: 'food', date: '', payment: '現金' });
+        // 替換此部分
+const groupMembers = ['燕如', '怡君', '鈞晏', '嘉緯', '淑瑩', '月雲'];
+const newExpense = ref({ 
+    name: '', 
+    amount: null, 
+    category: 'food', 
+    date: '', 
+    payer: '燕如', 
+    splitMembers: ['燕如', '怡君', '鈞晏', '嘉緯', '淑瑩', '月雲'] 
+});
+
+const toggleSplitMember = (member) => {
+    const index = newExpense.value.splitMembers.indexOf(member);
+    if (index > -1) {
+        if (newExpense.value.splitMembers.length > 1) newExpense.value.splitMembers.splice(index, 1);
+    } else {
+        newExpense.value.splitMembers.push(member);
+    }
+};
 
      // 固定資訊 (氣象、日期、飯店)
 const dates = ref([
@@ -603,6 +668,27 @@ const hotels = ref([
         const filteredShoppingList = computed(() => {
     return shoppingList.value.filter(item => item.buyer === selectedBuyer.value);
 });
+// 新增這兩段
+const dailyExpenses = computed(() => {
+    const daily = {};
+    expenses.value.forEach(exp => {
+        if (!daily[exp.date]) daily[exp.date] = 0;
+        daily[exp.date] += Number(exp.amount);
+    });
+    return daily;
+});
+
+const personOwes = computed(() => {
+    const totals = {};
+    groupMembers.forEach(m => totals[m] = 0);
+    expenses.value.forEach(exp => {
+        const amountPerPerson = Number(exp.amount) / (exp.splitMembers?.length || 1);
+        exp.splitMembers?.forEach(member => {
+            if (totals[member] !== undefined) totals[member] += amountPerPerson;
+        });
+    });
+    return totals;
+});
 
         // --- 核心邏輯 C：功能函式 ---
         const calculateCurrency = () => { currencyResult.value = Math.round(currencyInput.value * EXCHANGE_RATE); };
@@ -646,7 +732,7 @@ const hotels = ref([
 };
 
     const openMap = (q) => { 
-    if(q) window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`, '_blank'); 
+    if(q) window.open(`https://www.google.com/maps/search/?api=1&query=$${encodeURIComponent(q)}`, '_blank'); 
 };
 const openMapDirections = (start, end) => {
     if(start && end) {
@@ -756,12 +842,16 @@ const removeShoppingItem = (id) => {
     }
 };
         const addExpense = () => { 
-            newExpense.value.date = new Date().toISOString().slice(0, 10);
-            expenses.value.push({...newExpense.value}); 
-            showExpenseModal.value=false; 
-            newExpense.value={name:'', amount:null, category:'food', payment:'現金'}; 
-            syncToFirebase(); 
-        };
+    if(!newExpense.value.amount || !newExpense.value.name) return;
+    newExpense.value.date = dates.value[selectedDateIndex.value].date;
+    expenses.value.push({...newExpense.value}); 
+    showExpenseModal.value = false; 
+    newExpense.value = {
+        name: '', amount: null, category: 'food', date: '', payer: '燕如', 
+        splitMembers: ['燕如', '怡君', '鈞晏', '嘉緯', '淑瑩', '月雲']
+    }; 
+    syncToFirebase(); 
+};
         const removeExpense = (i) => { expenses.value.splice(i, 1); syncToFirebase(); };
 
         // --- 核心邏輯 D：生命週期 ---
@@ -786,7 +876,7 @@ const removeShoppingItem = (id) => {
             showItineraryModal, showShoppingModal, showExpenseModal, isEditMode,
             newItinerary, newShoppingItem, newExpense,
             saveItineraryItem, deleteItineraryItem, editItem, moveItineraryUp, moveItineraryDown, addShoppingItem, removeShoppingItem, addExpense, removeExpense,buyers, selectedBuyer, filteredShoppingList,
-    addShoppingItem, removeShoppingItem,handleImageUpload,
+    addShoppingItem, removeShoppingItem,handleImageUpload,groupMembers, toggleSplitMember, dailyExpenses, personOwes,
             totalExpensesJPY, totalExpensesTWD
         }
     }

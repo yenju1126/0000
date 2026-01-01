@@ -346,38 +346,108 @@
          - 為了簡潔性，表單欄位與按鈕與原本功能一致
        ========================== -->
     <!-- ITINERARY Modal：新增 / 編輯行程 -->
-    <div v-if="showItineraryModal" class="fixed inset-0 bg-deep-sea-blue/40 z-50 flex items-center justify-center p-6 backdrop-blur-sm animate-fade-in">
-        <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <h3 class="font-bold text-lg mb-5 text-center">{{ isEditMode ? '編輯行程' : '新增行程' }}</h3>
-            <div class="space-y-3">
-                <select v-model="newItinerary.category" class="w-full bg-slate-50 rounded-xl p-3 text-sm outline-none">
-                    <option value="sightseeing">景點</option><option value="food">美食</option><option value="shopping">購物</option><option value="accommodation">住宿</option><option value="flight">航班</option><option value="transport">交通</option>
-                </select>
-                <input v-model="newItinerary.name" placeholder="行程名稱" class="w-full bg-slate-50 rounded-xl p-3 text-sm outline-none"/>
-                <div class="grid grid-cols-2 gap-3">
-                    <input v-model="newItinerary.startTime" placeholder="開始時間 (09:00)" class="bg-slate-50 rounded-xl p-3 text-sm"/>
-                    <select v-model="newItinerary.transportType" class="bg-slate-50 rounded-xl p-3 text-sm"><option value="walk">步行</option><option value="car">開車/計程車</option><option value="public">大眾運輸</option><option value="flight">飛機</option></select>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="grid grid-cols-2 gap-3">
-    <input v-model="newItinerary.travelTime" placeholder="交通時間 (如: 45m)" class="bg-slate-50 rounded-xl p-3 text-sm"/>
-    <input v-model="newItinerary.transitTime" placeholder="班次時刻 (如: 10:24)" class="bg-slate-50 rounded-xl p-3 text-sm"/>
-</div>
-<input v-model="newItinerary.transNote" placeholder="交通備註 (如: 仙石線 往高城町)" class="w-full bg-slate-50 rounded-xl p-3 text-sm outline-none"/>
-                </div>
-                <input v-model="newItinerary.address" placeholder="地點/導航地址" class="w-full bg-slate-50 rounded-xl p-3 text-sm outline-none"/>
-                <textarea v-model="newItinerary.note" placeholder="行程備註" class="w-full bg-slate-50 rounded-xl p-3 text-sm h-24"></textarea>
+<div v-if="showItineraryModal" class="fixed inset-0 bg-[#01579B]/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-lg rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div class="bg-white w-full max-w-lg rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden transition-all">
+        
+        <div class="flex justify-between items-center mb-6 px-1">
+            <div class="flex items-center gap-2">
+                <div class="w-1.5 h-6 bg-deep-sea-blue rounded-full"></div>
+                <h3 class="text-xl font-bold text-slate-800">{{ isEditMode ? '編輯行程' : '新增行程項目' }}</h3>
+            </div>
+            <button @click="showItineraryModal = false" class="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-400 rounded-full hover:bg-slate-200 transition-colors">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
 
-                <div class="flex flex-col space-y-2 mt-4">
-                    <div class="flex space-x-3">
-                        <button @click="showItineraryModal=false" class="flex-1 py-3 bg-slate-100 rounded-xl text-slate-500 font-bold">取消</button>
-                        <button @click="saveItineraryItem" class="flex-1 py-3 bg-deep-sea-blue text-white rounded-xl font-bold">儲存</button>
+        <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-3">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-slate-500 ml-1">行程名稱</label>
+                    <input v-model="newItinerary.name" placeholder="要去哪裡？" class="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm focus:ring-2 focus:ring-blue-100 transition-all font-medium"/>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-slate-500 ml-1">活動分類</label>
+                    <select v-model="newItinerary.category" class="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm focus:ring-2 focus:ring-blue-100 appearance-none font-medium text-slate-700">
+                        <option value="sightseeing">📸 景點</option>
+                        <option value="food">🍱 美食</option>
+                        <option value="shopping">🛍️ 購物</option>
+                        <option value="accommodation">🏨 住宿</option>
+                        <option value="flight">✈️ 航班</option>
+                        <option value="transport">🚌 交通</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-slate-500 ml-1">開始時間</label>
+                    <input v-model="newItinerary.startTime" type="time" class="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm focus:ring-2 focus:ring-blue-100 font-medium"/>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-slate-500 ml-1">地址/地點</label>
+                    <input v-model="newItinerary.address" placeholder="地點或地址" class="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm focus:ring-2 focus:ring-blue-100 font-medium"/>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-bold text-slate-500 ml-1">行程詳細備註</label>
+                <textarea v-model="newItinerary.note" placeholder="例如：預約號碼、門票資訊..." rows="3" 
+                          class="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm focus:ring-2 focus:ring-blue-100 min-h-[90px] font-medium"></textarea>
+            </div>
+
+            <div class="bg-blue-50/50 rounded-[24px] p-5 space-y-4 border border-blue-100/50 mt-2">
+                <div class="flex items-center text-deep-sea-blue text-xs font-bold">
+                    <i class="fa-solid fa-route mr-2"></i>交通與乘車資訊設定
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[11px] font-bold text-blue-400 ml-1">交通方式</label>
+                        <div class="flex bg-white/60 p-1 rounded-xl gap-1">
+                            <button v-for="t in ['walk','car','public','flight']" :key="t"
+                                    @click="newItinerary.transportType = t"
+                                    :class="newItinerary.transportType === t ? 'bg-deep-sea-blue text-white shadow-md' : 'text-slate-400 hover:bg-slate-100'"
+                                    class="flex-1 py-2 rounded-lg text-xs transition-all duration-300">
+                                <i :class="getTransportIcon(t)"></i>
+                            </button>
+                        </div>
                     </div>
-                    <button v-if="isEditMode" @click="deleteItineraryItem" class="w-full py-2.5 text-red-500 text-sm font-medium border border-red-100 rounded-xl hover:bg-red-50 transition-colors"><i class="fa-solid fa-trash-can mr-1"></i> 刪除此行程</button>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[11px] font-bold text-red-400 ml-1">班次時刻 (紅色顯示)</label>
+                        <input v-model="newItinerary.transitTime" placeholder="10:24-11:05" 
+                               class="w-full bg-white border-none rounded-xl p-3 text-sm text-red-500 font-bold shadow-sm focus:ring-2 focus:ring-red-200 transition-all"/>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[11px] font-bold text-blue-400 ml-1">預計耗時 (如: 45m)</label>
+                        <input v-model="newItinerary.travelTime" placeholder="輸入時長" 
+                               class="w-full bg-white border-none rounded-xl p-3 text-sm font-medium shadow-sm focus:ring-2 focus:ring-blue-200 transition-all"/>
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[11px] font-bold text-blue-400 ml-1">轉乘備註 (如: 往仙台)</label>
+                        <input v-model="newItinerary.transNote" placeholder="輸入備註" 
+                               class="w-full bg-white border-none rounded-xl p-3 text-sm font-medium shadow-sm focus:ring-2 focus:ring-blue-200 transition-all"/>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <div class="grid grid-cols-2 gap-3 mt-8">
+            <button v-if="isEditMode" @click="deleteItineraryItem" 
+                    class="bg-red-50 text-red-500 font-bold py-4 rounded-2xl hover:bg-red-100 active:scale-95 transition-all text-sm">
+                <i class="fa-solid fa-trash-can mr-2"></i>刪除項目
+            </button>
+            <button @click="saveItineraryItem" 
+                    :class="isEditMode ? 'bg-deep-sea-blue text-white' : 'col-span-2 bg-deep-sea-blue text-white'" 
+                    class="font-bold py-4 rounded-2xl shadow-lg shadow-blue-200 hover:brightness-110 active:scale-95 transition-all text-sm">
+                <i class="fa-solid fa-check mr-2"></i>{{ isEditMode ? '儲存修改' : '確認加入行程' }}
+            </button>
+        </div>
     </div>
+</div>
 
     <!-- SHOPPING Modal：新增購物項目（含圖片上傳） -->
     <div v-if="showShoppingModal" class="fixed inset-0 bg-deep-sea-blue/40 z-50 flex items-center justify-center p-6 backdrop-blur-sm">
@@ -434,6 +504,9 @@
    - 使用 Realtime Database
    - tripRef 為同步的節點（trip_2025）
    -------------------------- */
+/* --------------------------
+   Firebase (compat) 初始化
+   -------------------------- */
 const firebaseConfig = {
     apiKey: "AIzaSyCcZkVvFk52AcfGu0cEENsD5jYJs1O2HZo",
     authDomain: "japantrip2026-da446.firebaseapp.com",
@@ -445,33 +518,25 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-const tripRef = db.ref('trip_2025'); // 所有資料會儲存在此節點
+const tripRef = db.ref('trip_2025');
 
-/* --------------------------
-   Vue 3 應用：setup() 風格
-   - 建立 state (ref)、computed 與各種方法
-   - 註解說明功能以利未來維護
-   -------------------------- */
 const { createApp, ref, computed, watch, onMounted } = Vue;
 
 createApp({
     setup(){
-        /* ------- 常數與 UI 狀態 ------- */
-        const EXCHANGE_RATE = 0.215;           // 匯率常數（JPY -> TWD）
-        const currentTab = ref('itinerary');   // 目前分頁
-        const selectedDateIndex = ref(0);      // 行程選中日期索引
-        const expenseDateIndex = ref(0);       // 花費分頁選中日期索引
+        const EXCHANGE_RATE = 0.215;
+        const currentTab = ref('itinerary');
+        const selectedDateIndex = ref(0);
+        const expenseDateIndex = ref(0);
 
-        /* ------- 資料儲存（可同步到 Firebase）------- */
-        const itineraryData = ref([[],[],[],[],[],[],[],[]]); // 8 天的行程陣列（每天為一陣列）
-        const shoppingList = ref([]);      // 購物清單陣列（每項含 id/name/image/buyer）
-        const expenses = ref([]);          // 所有花費陣列（含 date/payer/splitMembers 等）
-        const weatherData = ref({});       // 快取天氣資料（以日期索引為 key）
+        const itineraryData = ref([[],[],[],[],[],[],[],[]]);
+        const shoppingList = ref([]);
+        const expenses = ref([]);
+        const weatherData = ref({});
 
-        /* ------- 固定或初始資料 ------- */
-        const buyers = ref(['燕如','怡君','鈞晏','嘉緯','淑瑩','月雲']); // 購物負責人選項
-        const selectedBuyer = ref(buyers.value[0]); // 當前篩選的買家
-        const groupMembers = ['燕如','怡君','鈞晏','嘉緯','淑瑩','月雲']; // 團員名單（分攤用）
+        const buyers = ref(['燕如','怡君','鈞晏','嘉緯','淑瑩','月雲']);
+        const selectedBuyer = ref(buyers.value[0]);
+        const groupMembers = ['燕如','怡君','鈞晏','嘉緯','淑瑩','月雲'];
 
         const dates = ref([
             {date:'2/20',weekday:'五'},{date:'2/21',weekday:'六'},{date:'2/22',weekday:'日'},{date:'2/23',weekday:'一'},
@@ -484,29 +549,18 @@ createApp({
             {name:'兩國休雷蓋特酒店',location:'Tokyo',date:'2/24 - 2/27',time:'In 15:00 / Out 11:00'}
         ]);
 
-        /* ------- UI 控制（Modal / Form） ------- */
         const showItineraryModal = ref(false), showShoppingModal = ref(false), showExpenseModal = ref(false), isEditMode = ref(false);
-        const currencyInput = ref(10000), currencyResult = ref(0); // 匯率工具使用
+        const currencyInput = ref(10000), currencyResult = ref(0);
 
-        /* ------- 表單模型 ------- */
-       // 確保這段程式碼在您的 setup 區塊中
-const newItinerary = ref({ 
-    id: null, 
-    name: '', 
-    category: 'sightseeing', 
-    startTime: '', 
-    address: '', 
-    note: '', 
-    transportType: 'car', 
-    travelTime: '', 
-    transNote: '', 
-    transitTime: '', // <-- 檢查這行有沒有漏掉
-    isNoteExpanded: false 
-});
+        // 修正：確保 newItinerary 包含所有欄位
+        const newItinerary = ref({ 
+            id: null, name: '', category: 'sightseeing', startTime: '', 
+            address: '', note: '', transportType: 'car', travelTime: '', 
+            transNote: '', transitTime: '', isNoteExpanded: false 
+        });
         const newShoppingItem = ref({ name:'', image:null });
         const newExpense = ref({ name:'', amount:null, category:'food', date:'', payer:groupMembers[0], splitMembers:[...groupMembers] });
 
-        /* ------- 類別映射（外觀/圖示） ------- */
         const CATEGORY_MAP = {
             sightseeing:{color:'bg-green-500',icon:'fa-solid fa-camera'},
             food:{color:'bg-red-500',icon:'fa-solid fa-utensils'},
@@ -516,12 +570,6 @@ const newItinerary = ref({
             transport:{color:'bg-orange-500',icon:'fa-solid fa-car'}
         };
 
-        /* ===========================
-           Computed（衍生資料）
-           - currentItinerary: 目前選中日期的行程列表
-           - filteredShoppingList: 依 selectedBuyer 篩選
-           - dailyExpenses / personOwes / filteredExpenses / settlements
-           =========================== */
         const currentItinerary = computed(()=> itineraryData.value[selectedDateIndex.value] || []);
         const filteredShoppingList = computed(()=> shoppingList.value.filter(i=>i.buyer===selectedBuyer.value));
 
@@ -531,7 +579,6 @@ const newItinerary = ref({
             return d;
         });
 
-        // personOwes: 計算每位團員總應付（依 expense.splitMembers 平均分）
         const personOwes = computed(()=> {
             const t = {}; groupMembers.forEach(m=>t[m]=0);
             expenses.value.forEach(e=> {
@@ -541,13 +588,8 @@ const newItinerary = ref({
             return t;
         });
 
-        // filteredExpenses: 當日的花費明細（由 expenseDateIndex 決定）
         const filteredExpenses = computed(()=> expenses.value.filter(e => e.date === dates.value[expenseDateIndex.value].date));
 
-        /* settlements:
-           - 根據當日 filteredExpenses 計算誰欠誰（簡單貪婪配對）
-           - 回傳一組 {from, to, amount} 供畫面顯示
-        */
         const settlements = computed(()=> {
             const bal = {}; groupMembers.forEach(m=>bal[m]=0);
             filteredExpenses.value.forEach(e=>{
@@ -555,13 +597,11 @@ const newItinerary = ref({
                 const per = Number(e.amount||0) / (e.splitMembers?.length || 1);
                 e.splitMembers?.forEach(m=> bal[m] -= per);
             });
-
             const payers = [], recv = [];
             Object.keys(bal).forEach(k=>{
                 if(bal[k] > 1) recv.push({name:k,amount:bal[k]});
                 else if(bal[k] < -1) payers.push({name:k,amount:Math.abs(bal[k])});
             });
-
             const out = [];
             payers.forEach(p=>{
                 recv.forEach(r=>{
@@ -575,32 +615,16 @@ const newItinerary = ref({
             return out;
         });
 
-        /* ===========================
-           小工具 / 格式化函式（不改變資料）
-           - calculateCurrency: 更新 currencyResult
-           - formatNumber: 千分位顯示
-           - getCategoryColor/Icon/Label: 顯示用
-           - getWeatherIcon/Description: 天氣顯示用（簡單映射）
-           - getTransportIcon: 交通圖示
-           - renderNote: 將文字中的 URL 轉為 <a>
-           =========================== */
         const calculateCurrency = ()=> currencyResult.value = Math.round((Number(currencyInput.value)||0) * EXCHANGE_RATE);
         const formatNumber = n => (n||n===0) ? String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '0';
         const getCategoryColor = c => CATEGORY_MAP[c]?.color || 'bg-gray-500';
         const getCategoryIcon = c => CATEGORY_MAP[c]?.icon || 'fa-solid fa-circle';
         const getCategoryLabel = c => ({sightseeing:'景點',food:'美食',shopping:'購物',accommodation:'住宿',flight:'航班',transport:'交通'}[c]||'其他');
-
         const getWeatherIcon = c => { if(!c) return 'fa-solid fa-cloud'; const m={snow:'fa-solid fa-snowflake',clear:'fa-solid fa-sun',clouds:'fa-solid fa-cloud',rain:'fa-solid fa-cloud-showers-heavy',mist:'fa-solid fa-smog'}; return m[c.toLowerCase()]||'fa-solid fa-cloud'; };
         const getWeatherDescription = c => { if(!c) return '讀取中'; const m={snow:'降雪',clear:'晴朗',clouds:'多雲',rain:'有雨',drizzle:'毛毛雨',thunderstorm:'雷雨',mist:'有霧',fog:'濃霧'}; return m[c.toLowerCase()]||'多雲'; };
         const getTransportIcon = t => ({walk:'fa-solid fa-shoe-prints',car:'fa-solid fa-car-side',public:'fa-solid fa-train-subway',flight:'fa-solid fa-plane'}[t]||'fa-solid fa-arrow-right');
-
         const renderNote = txt => txt ? txt.replace(/(https?:\/\/[^\s]+)/g, u => `<a href="${u}" target="_blank" class="text-blue-500 underline break-all">${u}</a>`) : '';
 
-        /* ===========================
-           地圖 / 導航相關（開新分頁）
-           - openMap: 搜尋地址
-           - openMapDirections: 以 origin/destination 開啟 Google Maps 路線
-           =========================== */
         const openMap = q => q && window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`, '_blank');
         const openMapDirections = (s,e) => {
             if(!s||!e) return;
@@ -610,41 +634,46 @@ const newItinerary = ref({
             window.open(`https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&travelmode=${mode}`, '_blank');
         };
 
-        /* ===========================
-           Firebase 同步（簡單實作）
-           - syncToFirebase: 將整筆資料寫回 tripRef（同步用）
-           注意：目前使用 set 覆蓋，若多人同時寫入請改用更細緻的 merge/transaction
-           =========================== */
         const syncToFirebase = ()=> tripRef.set({
             itineraryData: JSON.parse(JSON.stringify(itineraryData.value)),
             shoppingList: JSON.parse(JSON.stringify(shoppingList.value)),
             expenses: JSON.parse(JSON.stringify(expenses.value))
         });
 
-        /* ===========================
-           新增 / 編輯 / 刪除 等動作
-           - handleAddClick: 根據目前分頁打開對應 Modal
-           - saveItineraryItem, deleteItineraryItem, editItem: 行程 CRUD
-           - moveItineraryUp/Down: 行程排序
-           =========================== */
-        const handleAddClick = () => {
+        // 修正：將所有函式移出 handleAddClick
+       const handleAddClick = () => {
+    // 先關閉所有可能的彈窗（確保狀態乾淨）
+    showItineraryModal.value = false;
+    showShoppingModal.value = false;
+    showExpenseModal.value = false;
+
+    console.log("當前分頁是:", currentTab.value); // 偵錯用
+
     if (currentTab.value === 'itinerary') {
         isEditMode.value = false;
         newItinerary.value = { 
-            id: Date.now(), 
-            name: '', 
-            category: 'sightseeing', 
-            startTime: '', 
-            address: '', 
-            note: '', 
-            transportType: 'car', 
-            travelTime: '', 
-            transNote: '', 
-            transitTime: '', // <-- 這裡也要加
-            isNoteExpanded: false 
+            id: Date.now(), name: '', category: 'sightseeing', startTime: '', 
+            address: '', note: '', transportType: 'car', travelTime: '', 
+            transNote: '', transitTime: '', isNoteExpanded: false 
         };
         showItineraryModal.value = true;
-
+    } 
+    else if (currentTab.value === 'shopping') {
+        // 重設購物項目並開啟購物彈窗
+        newShoppingItem.value = { name: '', image: null, price: '', buyer: '' };
+        showShoppingModal.value = true;
+    } 
+    else if (currentTab.value === 'expenses') {
+        // 重設記帳項目並開啟記帳彈窗
+        newExpense.value = { 
+            name: '', amount: null, category: 'food', 
+            date: dates.value[expenseDateIndex.value].date, 
+            payer: groupMembers[0], 
+            splitMembers: [...groupMembers] 
+        };
+        showExpenseModal.value = true;
+    }
+};
         const saveItineraryItem = ()=>{
             const list = itineraryData.value[selectedDateIndex.value];
             if(isEditMode.value){
@@ -668,21 +697,46 @@ const newItinerary = ref({
         const moveItineraryUp = id => { const l = itineraryData.value[selectedDateIndex.value]; const i=l.findIndex(x=>x.id===id); if(i>0){ [l[i-1],l[i]]=[l[i],l[i-1]]; syncToFirebase(); } };
         const moveItineraryDown = id => { const l = itineraryData.value[selectedDateIndex.value]; const i=l.findIndex(x=>x.id===id); if(i<l.length-1){ [l[i+1],l[i]]=[l[i],l[i+1]]; syncToFirebase(); } };
 
-        /* ===========================
-           Shopping：圖片上傳與清單增刪
-           - handleImageUpload: 將選取檔案轉成 base64 存於 newShoppingItem.image（簡單做法）
-           - addShoppingItem: 將 newShoppingItem 推入 shoppingList（包含 buyer）
-           - removeShoppingItem: 以 id 刪除
-           注意：Base64 方便但會使資料庫增大，若要上傳大量圖片應改用 Storage（例如 Firebase Storage）
-           =========================== */
-        const handleImageUpload = e => {
-            const f = e.target.files?.[0];
-            if(!f) return;
-            if(f.size > 1024*1024){ alert('圖片太大囉，請選擇小於 1MB 的照片'); return; }
-            const r = new FileReader();
-            r.onload = ev => newShoppingItem.value.image = ev.target.result;
-            r.readAsDataURL(f);
+        const handleImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // 1. 放寬限制到 5MB
+    const MAX_SIZE = 5 * 1024 * 1024; 
+    if (file.size > MAX_SIZE) {
+        alert('圖片太大囉，請選擇小於 5MB 的照片');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        const img = new Image();
+        img.src = ev.target.result;
+        img.onload = () => {
+            // 2. 圖片壓縮邏輯
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+
+            // 設定最大寬度為 800px，按比例縮放
+            const MAX_WIDTH = 800;
+            if (width > MAX_WIDTH) {
+                height = (MAX_WIDTH / width) * height;
+                width = MAX_WIDTH;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            // 3. 轉成壓縮後的 Base64 (品質 0.7)
+            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+            newShoppingItem.value.image = compressedBase64;
         };
+    };
+    reader.readAsDataURL(file);
+};
 
         const addShoppingItem = ()=>{
             if(!newShoppingItem.value.name) return;
@@ -695,12 +749,6 @@ const newItinerary = ref({
             if(i!==-1){ shoppingList.value.splice(i,1); syncToFirebase(); }
         };
 
-        /* ===========================
-           Expenses：新增/刪除/分攤控制
-           - toggleSplitMember: 點選分攤成員加入或移除（不能移除全部）
-           - addExpense: 新增花費並指定為當前 expenseDateIndex 的日期
-           - removeExpense: 刪除項目（以物件比對）
-           =========================== */
         const toggleSplitMember = m => {
             const idx = newExpense.value.splitMembers.indexOf(m);
             if(idx > -1){ if(newExpense.value.splitMembers.length > 1) newExpense.value.splitMembers.splice(idx,1); }
@@ -723,18 +771,11 @@ const newItinerary = ref({
             }
         };
 
-        /* ===========================
-           天氣抓取：fetchWeather
-           - 根據 selectedDateIndex 決定城市（Sendai / Matsushima / Tokyo）
-           - 使用 OpenWeatherMap 的 current weather endpoint（簡單示範）
-           - 結果存在 weatherData[idx]，畫面以該資料顯示
-           注意：此處每次切換日期馬上抓取，可再加節流或快取策略
-           =========================== */
         const fetchWeather = async ()=>{
             const idx = selectedDateIndex.value;
             let city = idx <= 2 ? 'Sendai' : (idx === 3 ? 'Matsushima' : 'Tokyo');
             try{
-                const apiKey = '5e1e88597b11b5dbf9f550ee7b26e17a'; // 你的 API key
+                const apiKey = '5e1e88597b11b5dbf9f550ee7b26e17a';
                 const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city},JP&units=metric&appid=${apiKey}&lang=zh_tw&_=${Date.now()}`);
                 const data = await res.json();
                 if(data?.weather && data?.main){
@@ -751,12 +792,6 @@ const newItinerary = ref({
         };
         watch(selectedDateIndex, ()=>fetchWeather(), { immediate:true });
 
-        /* --------------------------
-           Lifecycle：onMounted
-           - 設定初始匯率顯示
-           - 從 Firebase 監聽資料（tripRef）
-           - 當有資料時覆蓋本地 store
-           -------------------------- */
         onMounted(()=>{
             calculateCurrency();
             tripRef.on('value', snap => {
@@ -768,7 +803,6 @@ const newItinerary = ref({
             });
         });
 
-        /* 回傳供模板使用的資料與方法（只回傳需要使用的） */
         return {
             EXCHANGE_RATE, currentTab, dates, selectedDateIndex, itineraryData, currentItinerary, hotels, shoppingList, expenses,
             weatherData, currencyInput, currencyResult, calculateCurrency, formatNumber, getCategoryColor, getCategoryIcon, getCategoryLabel,
